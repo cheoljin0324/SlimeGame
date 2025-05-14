@@ -2,28 +2,28 @@ using UnityEngine;
 
 public class AIManager : MonoBehaviour
 {
-    public DefaultDatable data;  // AI가 참조할 ScriptableObject
+    public DefaultDatable data;
     private int currentAIId;
-    private Transform player;  // 플레이어 위치
+    private Transform player;
+    private EnemyAnimation enemyAnimation; // EnemyAnimation 스크립트를 가져오기
 
     void Start()
     {
         if (data != null)
         {
-            currentAIId = data.id;  // ScriptableObject에서 id값을 읽어오기
+            currentAIId = data.id;
         }
         else
         {
             Debug.LogError("No DefaultDatable assigned to AIManager!");
         }
 
-        // 플레이어를 찾기
-        player = GameObject.FindWithTag("Player").transform;
+        player = GameObject.FindWithTag("Player")?.transform;
+        enemyAnimation = GetComponent<EnemyAnimation>(); // EnemyAnimation 컴포넌트 찾기
     }
 
     void Update()
     {
-        // AI 동작을 실행하는 메서드를 호출
         ExecuteAIBehavior(currentAIId);
     }
 
@@ -32,15 +32,15 @@ public class AIManager : MonoBehaviour
         switch (aiId)
         {
             case 1:
-                FollowPlayerAI();  // 플레이어를 추적하는 AI
+                FollowPlayerAI();  // ID 1: 플레이어 추적
                 break;
 
             case 2:
-                AggressiveAI();  // 공격적인 AI
+                AggressiveAI();
                 break;
 
             case 3:
-                DefensiveAI();  // 방어적인 AI
+                DefensiveAI();
                 break;
 
             default:
@@ -49,33 +49,54 @@ public class AIManager : MonoBehaviour
         }
     }
 
-    // ID가 1일 때, 플레이어를 추적하는 AI
     private void FollowPlayerAI()
     {
-        if (player != null)
+        if (player == null || data == null) return;
+
+        Vector2 moveDir = Vector2.zero;
+        Vector2 toPlayer = player.position - transform.position;
+        float distanceToPlayer = toPlayer.magnitude;
+
+        // 플레이어를 향해 이동
+        if (distanceToPlayer > 0.8f) // 일정 거리 이상일 때만 이동
         {
-            Vector2 direction = (player.position - transform.position).normalized;  // 플레이어와의 방향 벡터 계산
-            transform.Translate(direction * Time.deltaTime * 3f);  // 플레이어 쪽으로 이동 (속도 3f)
+            moveDir += toPlayer.normalized;
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
         }
+        else
+        {
+            enemyAnimation.PlayAnimation(EnemyAnimation.State.Idle);
+        }
+
+        // 방향에 맞게 스프라이트 반전 (플레이어가 왼쪽이면 반전)
+        if (toPlayer.x < 0)
+        {
+            enemyAnimation.FlipSprite(false); // 왼쪽을 볼 때
+        }
+        else
+        {
+            enemyAnimation.FlipSprite(true); // 오른쪽을 볼 때
+        }
+
+        // 이동 처리
+        transform.Translate(moveDir.normalized * data.spd * Time.deltaTime);
     }
 
     private void AggressiveAI()
     {
-        // 공격적인 AI 로직 (플레이어를 추적하는 예시)
-        if (player != null)
-        {
-            Vector2 direction = (player.position - transform.position).normalized;
-            transform.Translate(direction * Time.deltaTime * 3f);  // 플레이어 쪽으로 이동
-        }
+        if (player == null || data == null) return;
+
+        Vector2 direction = (player.position - transform.position).normalized;
+        transform.Translate(direction * Time.deltaTime * data.spd * 1.2f);
+        enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
     }
 
     private void DefensiveAI()
     {
-        // 방어적인 AI 로직 (피하는 예시)
-        if (player != null)
-        {
-            Vector2 direction = (transform.position - player.position).normalized;
-            transform.Translate(direction * Time.deltaTime * 1.5f);  // 플레이어 반대 방향으로 이동
-        }
+        if (player == null) return;
+
+        Vector2 direction = (transform.position - player.position).normalized;
+        transform.Translate(direction * Time.deltaTime * 1.5f);
+        enemyAnimation.PlayAnimation(EnemyAnimation.State.Move);
     }
 }

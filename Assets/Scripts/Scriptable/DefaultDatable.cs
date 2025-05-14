@@ -5,7 +5,7 @@ public class DefaultDatable : ScriptableObject
 {
     public int id;
     public int Hp;
-    public int spd;
+    public float spd;
     public int atk;
     public float atkspd;
 }
