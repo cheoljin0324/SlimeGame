@@ -9,7 +9,7 @@ public class PlayerAnim : MonoBehaviour
     public List<Sprite> playerMoveSprite;
     int Motionindex = 0;
     SpriteRenderer playerSpriteRenderer;
-    animState nowState = animState.None;
+    public animState nowState = animState.None;
 
     private void Start()
     {
@@ -28,28 +28,42 @@ public class PlayerAnim : MonoBehaviour
         SetAnim();
         while (true)
         {
-            if (Motionindex > playerMoveSprite.Count - 2)
+            if (nowState == animState.Idle)
             {
-                Motionindex = 0;
+
+                if (nowState == animState.Idle)
+                {
+                    break;
+                }
+
+                if (Motionindex > playerMoveSprite.Count - 2)
+                {
+                    Motionindex = 0;
+                }
+                Motionindex++;
+                playerSpriteRenderer.sprite = playerMoveSprite[Motionindex];
+                yield return new WaitForSeconds(0.3f);
             }
-            Motionindex++;
-            playerSpriteRenderer.sprite = playerMoveSprite[Motionindex];
-            yield return new WaitForSeconds(0.1f);
+            }
         }
-    }
 
     public IEnumerator charIdleMotion()
     {
         SetAnim();
         while (true)
         {
-            if (Motionindex > playerIdleSprite.Count - 2)
+            if (nowState == animState.Move)
             {
-                Motionindex = 0;
+                break;
             }
-            Motionindex++;
-            playerSpriteRenderer.sprite =  playerIdleSprite[Motionindex];
-            yield return new WaitForSeconds(0.1f);
-        }
+                if (Motionindex > playerIdleSprite.Count - 2)
+                {
+                    Motionindex = 0;
+                }
+                Motionindex++;
+                playerSpriteRenderer.sprite = playerIdleSprite[Motionindex];
+                yield return new WaitForSeconds(0.1f);
+            }
+        
     }
 }

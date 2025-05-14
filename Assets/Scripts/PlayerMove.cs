@@ -41,6 +41,8 @@ public class PlayerMove : MonoBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
+        if(player.GetAnim() != animState.Move) { player.AnimMove(); }
+        if(moveInput.magnitude <= 0) { player.AnimIdle(); }
     }
 }
 

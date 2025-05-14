@@ -1,11 +1,11 @@
 using UnityEngine;
 
-enum playerState
+public enum playerState
 {
     None, Idle, Move, Attack, Damage, Death
 }
 
-enum animState
+public enum animState
 {
     None, Idle, Move, Attack, Damage, Death
 }
@@ -23,12 +23,27 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D)) AnimMove();
+        
+    }
+
+    public animState GetAnim()
+    {
+        return charAnimation.nowState;
+    }
+
+    public void AnimIdle()
+    {
+        charAnimation.nowState = animState.Idle;
+
+        StopAllCoroutines();
+        StartCoroutine(charAnimation.charIdleMotion());
     }
 
     public void AnimMove()
     {
-        StopCoroutine(charAnimation.charIdleMotion());
+        charAnimation.nowState = animState.Move;
+
+        StopAllCoroutines();
         StartCoroutine(charAnimation.MoveAnim());
     }
 
