@@ -128,9 +128,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 52738931}
-  - component: {fileID: 52738932}
   - component: {fileID: 52738933}
   - component: {fileID: 52738934}
+  - component: {fileID: 52738935}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -154,23 +154,6 @@ Transform:
   - {fileID: 1763567878}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &52738932
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 52738930}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d619e986a96ca2c4faeb23ee9ba5b462, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 0}
-  moveSpeed: 10
-  smoothing: 0.1
-  squishAmount: 0.1
-  squishSpeed: 4
 --- !u!114 &52738933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,9 +181,9 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 52738932}
+      - m_Target: {fileID: 52738930}
         m_TargetAssemblyTypeName: PlayerMove, Assembly-CSharp
-        m_MethodName: OnMove
+        m_MethodName: 
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -301,6 +284,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adcabe7f974e53145ac4bbc2dc215ea3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &52738935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52738930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb002c3e84dc63b47bbea478f063cf54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -706,10 +702,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1763567877}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0abe54939102264da415ac616e9af63, type: 3}
+  m_Script: {fileID: 11500000, guid: c3f147c9883c7044d8cec8c1f31faa2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerIdleSprite:
+  spriteRenderer: {fileID: 0}
+  idleSprites:
   - {fileID: -9074539206338946419, guid: c80534141f80d28489b1ef92f8ff7d99, type: 3}
   - {fileID: -387061471815523496, guid: c80534141f80d28489b1ef92f8ff7d99, type: 3}
   - {fileID: 469887860811983759, guid: c80534141f80d28489b1ef92f8ff7d99, type: 3}
@@ -717,13 +714,14 @@ MonoBehaviour:
   - {fileID: -5816436153592121541, guid: c80534141f80d28489b1ef92f8ff7d99, type: 3}
   - {fileID: -3371520512202314939, guid: c80534141f80d28489b1ef92f8ff7d99, type: 3}
   - {fileID: -2599926529332704699, guid: c80534141f80d28489b1ef92f8ff7d99, type: 3}
-  playerMoveSprite:
+  moveSprites:
   - {fileID: 1618185110837684384, guid: ae7b495337938814b97889e26aa59dce, type: 3}
   - {fileID: -379935657828565217, guid: ae7b495337938814b97889e26aa59dce, type: 3}
   - {fileID: 7961362974256884671, guid: ae7b495337938814b97889e26aa59dce, type: 3}
   - {fileID: -3607888842448822257, guid: ae7b495337938814b97889e26aa59dce, type: 3}
   - {fileID: 4593568250741143324, guid: ae7b495337938814b97889e26aa59dce, type: 3}
   - {fileID: -255545124399731749, guid: ae7b495337938814b97889e26aa59dce, type: 3}
+  frameRate: 0.1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
