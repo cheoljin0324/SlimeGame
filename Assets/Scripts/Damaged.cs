@@ -135,7 +135,11 @@ public class Damaged : MonoBehaviour
     {
         Debug.Log($"{gameObject.name} died!");
         Destroy(gameObject);
-        if (gameObject.CompareTag("Enemy")) spawner.enemyCnt -= 1;
+        if (gameObject.CompareTag("Enemy"))
+        {
+            spawner.enemyCnt -= 1;
+            GameManager.Instance.StateCheck();
+        }
     }
 
     private IEnumerator FlashRed()

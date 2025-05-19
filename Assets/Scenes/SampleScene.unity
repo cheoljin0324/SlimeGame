@@ -717,7 +717,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.3962264, g: 0.3962264, b: 0.3962264, a: 1}
+  m_Color: {r: 0, g: 0.3584906, b: 0.07271498, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1169,6 +1169,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1886387277}
   - component: {fileID: 1886387276}
+  - component: {fileID: 1886387278}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1191,6 +1192,7 @@ MonoBehaviour:
   mobDB: {fileID: 11400000, guid: 8e5f34274f37b194b848c45a6f63152b, type: 2}
   waveDB:
   - {fileID: 11400000, guid: a1e13fe52d4810c42a01bbfc911c14c4, type: 2}
+  - {fileID: 11400000, guid: a1e13fe52d4810c42a01bbfc911c14c4, type: 2}
   nowWAVE: 0
   spawnPos:
   - {fileID: 215358968}
@@ -1202,6 +1204,7 @@ MonoBehaviour:
   enemyCnt: 0
   cntText: {fileID: 979692132}
   gameStart: 0
+  gameState: 0
 --- !u!4 &1886387277
 Transform:
   m_ObjectHideFlags: 0
@@ -1217,6 +1220,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1886387278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1886387275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dde96c793f7b10f44af2e9dd1e7d3ad3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!198 &1929361728 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 1941712047420524385, guid: 65f87ee814db1e4479fba3f94f541d64, type: 3}
