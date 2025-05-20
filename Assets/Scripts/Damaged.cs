@@ -139,6 +139,7 @@ public class Damaged : MonoBehaviour
         {
             spawner.enemyCnt -= 1;
             GameManager.Instance.StateCheck();
+            GameManager.Instance.biggerPlayer();
         }
     }
 
