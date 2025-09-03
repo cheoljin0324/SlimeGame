@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class EnemyAnimation : MonoBehaviour
 {
     public enum State { Idle, Move }
-
+    //Å×½ºÆ®
     public List<Sprite> idleSprites;
     public List<Sprite> moveSprites;
     public float frameRate = 0.1f;
