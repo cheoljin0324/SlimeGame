@@ -14,8 +14,8 @@ jobs:
           curl -H "Content-Type: application/json" \
             -X POST \
             -d "{
-              \"username\": \"🦊 GitHub 알람봇\",
-              \"avatar_url\": \"https://i.imgur.com/AfFp7pu.png\",
-              \"content\": \"📢 **$GITHUB_ACTOR** 님이 [$GITHUB_REPOSITORY]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY)에 푸시했습니다.\\n브랜치: $GITHUB_REF\\n커밋: $GITHUB_SHA\"
+              \"username\": \"아리스\",
+              \"avatar_url\": \"https://img.onnada.com/2022/0917/thumb_991469724_8c321a73_AIwLeP.jpg",
+              \"content\": \"용사 아리스 보고합니다! \\n📢 **$GITHUB_ACTOR** 가 [$GITHUB_REPOSITORY]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY)에 모험담을 올렸습니다!.\"
             }" \
             ${{ secrets.DISCORD_WEBHOOK_URL }}
