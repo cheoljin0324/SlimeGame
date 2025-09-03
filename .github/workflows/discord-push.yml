@@ -3,7 +3,7 @@ name: Discord Push Notifier
 on:
   push:
     branches:
-      - main
+      - main  # 알람 받을 브랜치
 
 jobs:
   notify:
@@ -13,9 +13,9 @@ jobs:
         uses: peter-evans/discord-webhook@v2
         with:
           webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          username: "아리스"
+          username: "소월 알림봇"  # 원하는 이름
           avatar-url: "https://img.onnada.com/2022/0917/thumb_991469724_8c321a73_AIwLeP.jpg"
           content: |
-            📌 용사 아리스 커밋 확인했습니다!
+            📌 새로운 커밋이 감지되었습니다!
             커밋 메시지: ${{ github.event.head_commit.message }}
             작성자: ${{ github.actor }}
