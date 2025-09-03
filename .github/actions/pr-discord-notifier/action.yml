@@ -41,19 +41,16 @@ runs:
       env:
         DATA: >
           {
-            "username": ${{ env.USERNAME }},
-            "avatar_url": ${{ env.AVATAR_URL }},
+            "username": "${{ env.USERNAME }}",
+            "avatar_url": "${{ env.AVATAR_URL }}",
             "embeds": [
               {
-                "title": ${{ env.TITLE }},
+                "title": "${{ env.TITLE }}",
                 "description": "새로운 PR이 도착했습니다!\n\n${{ env.PROBLEM }}",
-                "url": ${{ env.URL }},
+                "url": "${{ env.URL }}",
                 "color": 6847432
               }
             ]
           }
       run: >
-        curl -X
-        POST -H 'Content-type:application/json'
-        -d "$DATA"
-        ${{ inputs.discord_webhook_url }}
+        curl -X POST -H 'Content-type:application/json' -d "$DATA" ${{ inputs.discord_webhook_url }}
