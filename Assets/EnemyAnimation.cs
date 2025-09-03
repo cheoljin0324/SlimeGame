@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public class EnemyAnimation : MonoBehaviour
 {
+    //힘들다
     public enum State { Idle, Move }
     //테스트
     public List<Sprite> idleSprites;
