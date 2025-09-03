@@ -1,15 +1,21 @@
-name: PR to Discord
+name: Notify Discord on Push
 
 on:
-  pull_request:
-    types: [opened, edited, reopened]
+  push:
+    branches:
+      - main 
 
 jobs:
-  notify-pr:
+  notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send PR Notification to Discord
-        uses: ./github/actions/pr-discord-notifier
-        with:
-          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          pull_request: ${{ toJson(github.event.pull_request) }}
+      - name: Send Discord Notification
+        run: |
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{
+              \"username\": \"🦊 GitHub 알람봇\",
+              \"avatar_url\": \"https://i.imgur.com/AfFp7pu.png\",
+              \"content\": \"📢 **$GITHUB_ACTOR** 님이 [$GITHUB_REPOSITORY]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY)에 푸시했습니다.\\n브랜치: $GITHUB_REF\\n커밋: $GITHUB_SHA\"
+            }" \
+            ${{ secrets.DISCORD_WEBHOOK_URL }}
