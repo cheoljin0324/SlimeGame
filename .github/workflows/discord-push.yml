@@ -3,7 +3,7 @@ name: Discord Push Notifier
 on:
   push:
     branches:
-      - main
+      - main  # 알람 받을 브랜치
 
 jobs:
   notify:
