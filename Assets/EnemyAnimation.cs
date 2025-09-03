@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class EnemyAnimation : MonoBehaviour
 {
-    //Èûµé´Ù1123411
+    //Èûµé´Ù11234114
     public enum State { Idle, Move }
     //Å×½ºÆ®
     public List<Sprite> idleSprites;
