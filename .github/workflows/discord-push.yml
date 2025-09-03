@@ -3,21 +3,19 @@ name: Discord Push Notifier
 on:
   push:
     branches:
-      - main  # 알람 받을 브랜치
+      - main
 
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Discord Webhook
-        uses: actions/http-client@v2
+      - name: Send Discord Notification
+        uses: peter-evans/discord-webhook@v2
         with:
-          url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          method: POST
-          headers: '{"Content-Type": "application/json"}'
-          body: |
-            {
-              "username": "아리스",
-              "avatar_url": "https://img.onnada.com/2022/0917/thumb_991469724_8c321a73_AIwLeP.jpg",
-              "content": "📌 용사 아리스 커밋 확인했습니다!\n커밋 메시지: ${{ github.event.head_commit.message }}\n작성자: ${{ github.actor }}"
-            }
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          username: "아리스"
+          avatar-url: "https://img.onnada.com/2022/0917/thumb_991469724_8c321a73_AIwLeP.jpg"
+          content: |
+            📌 용사 아리스 커밋 확인했습니다!
+            커밋 메시지: ${{ github.event.head_commit.message }}
+            작성자: ${{ github.actor }}
