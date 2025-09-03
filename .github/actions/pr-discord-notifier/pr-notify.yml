@@ -1,0 +1,15 @@
+name: PR to Discord
+
+on:
+  pull_request:
+    types: [opened, edited, reopened]
+
+jobs:
+  notify-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send PR Notification to Discord
+        uses: ./github/actions/pr-discord-notifier
+        with:
+          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          pull_request: ${{ toJson(github.event.pull_request) }}
