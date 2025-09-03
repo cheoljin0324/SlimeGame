@@ -12,9 +12,9 @@ jobs:
       - name: Send Discord Notification
         uses: peter-evans/discord-webhook@v2
         with:
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          username: "소월 알림봇"  # 원하는 이름
-          avatar-url: "https://img.onnada.com/2022/0917/thumb_991469724_8c321a73_AIwLeP.jpg"
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}  # 등록한 Secret 이름
+          username: "알림봇"  # Discord에 표시할 이름
+          avatar-url: "https://img.onnada.com/2022/0917/thumb_991469724_8c321a73_AIwLeP.jpg"  # Discord에 표시할 프로필 사진
           content: |
             📌 새로운 커밋이 감지되었습니다!
             커밋 메시지: ${{ github.event.head_commit.message }}
