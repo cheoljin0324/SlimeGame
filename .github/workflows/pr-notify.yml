@@ -29,8 +29,8 @@ jobs:
           else
             CHAR_NAME="미도리"
             CHAR_AVATAR="https://cdn.discordapp.com/attachments/1412750974996709476/1413017206522122251/shop1_8ac10c9d3444a56ca90e07cbd1a5155e.png"
-            CHAR_TITLE="앗, 새로운 모험 코드가 도착했어요!"
-            CHAR_DESC="이번 커밋은 ${GITHUB_ACTOR}님이 올린 코드입니다.\n커밋 메시지: $COMMIT_MESSAGE"
+            CHAR_TITLE="새로운 코드를 불러오기 합니다."
+            CHAR_DESC="커밋 메시지: $COMMIT_MESSAGE"
           fi
           echo "CHAR_NAME=$CHAR_NAME" >> $GITHUB_ENV
           echo "CHAR_AVATAR=$CHAR_AVATAR" >> $GITHUB_ENV
