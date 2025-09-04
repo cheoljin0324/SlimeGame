@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class AIManager : MonoBehaviour
 {
+    // 아아아아아악
     public DefaultDatable data;
     private int currentAIId;
     private Transform player;
