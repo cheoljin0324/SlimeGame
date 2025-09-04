@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 public class EnemyAnimation : MonoBehaviour
 {
-    //Èûµé´Ù11234114564211111
+    //í˜ë“¤ë‹¤1123411456421111132412
     public enum State { Idle, Move }
-    //Å×½ºÆ®
+    //í…ŒìŠ¤íŠ¸
     public List<Sprite> idleSprites;
     public List<Sprite> moveSprites;
     public float frameRate = 0.1f;
@@ -15,7 +15,7 @@ public class EnemyAnimation : MonoBehaviour
     private int currentFrame;
     private State currentState;
     private List<Sprite> currentSprites;
-    private bool facingRight = true; // ±âº»ÀûÀ¸·Î ¿À¸¥ÂÊÀ» º¸°í ÀÖÀ½
+    private bool facingRight = true; // ê¸°ë³¸ì ìœ¼ë¡œ ì˜¤ë¥¸ìª½ì„ ë³´ê³  ìˆìŒ
 
     void Start()
     {
@@ -55,8 +55,8 @@ public class EnemyAnimation : MonoBehaviour
             facingRight = flip;
             Vector3 theScale = transform.localScale;
 
-            // ¹İÀü ¹æÇâÀ» ¹İ´ë·Î ¼³Á¤
-            theScale.x = Mathf.Abs(theScale.x) * (flip ? -1 : 1); // flipÀÌ trueÀÌ¸é 1, falseÀÌ¸é -1
+            // ë°˜ì „ ë°©í–¥ì„ ë°˜ëŒ€ë¡œ ì„¤ì •
+            theScale.x = Mathf.Abs(theScale.x) * (flip ? -1 : 1); // flipì´ trueì´ë©´ 1, falseì´ë©´ -1
             transform.localScale = theScale;
         }
     }
