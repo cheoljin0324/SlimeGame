@@ -10,14 +10,28 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      - name: Select Push Character Based on Commit SHA
+        if: github.event_name == 'push'
+        run: |
+          LAST_CHAR=${GITHUB_SHA: -1}
+          if [[ $((16#$LAST_CHAR % 2)) -eq 0 ]]; then
+            CHAR_NAME="모모이"
+            CHAR_AVATAR="https://cdn.discordapp.com/attachments/1412750974996709476/1413017152310480988/shop1_191cceba693af3b12fb55ccc65fe28fd.png"
+          else
+            CHAR_NAME="미도리"
+            CHAR_AVATAR="https://cdn.discordapp.com/attachments/1412750974996709476/1413017206522122251/shop1_8ac10c9d3444a56ca90e07cbd1a5155e.png"
+          fi
+          echo "CHAR_NAME=$CHAR_NAME" >> $GITHUB_ENV
+          echo "CHAR_AVATAR=$CHAR_AVATAR" >> $GITHUB_ENV
+
       - name: Notify Push
         if: github.event_name == 'push'
         run: |
           curl -H "Content-Type: application/json" \
           -X POST \
           -d "{
-                \"username\": \"모모이\",
-                \"avatar_url\": \"https://cdn.discordapp.com/attachments/1412750974996709476/1413017152310480988/shop1_191cceba693af3b12fb55ccc65fe28fd.png\",
+                \"username\": \"${{ env.CHAR_NAME }}\",
+                \"avatar_url\": \"${{ env.CHAR_AVATAR }}\",
                 \"embeds\": [{
                   \"title\": \"우와아아아앗 새로운 코드잖아!?\",
                   \"description\": \"${{ github.actor }} pushed to ${{ github.ref }}\",
@@ -35,7 +49,7 @@ jobs:
                 \"username\": \"미도리\",
                 \"avatar_url\": \"https://cdn.discordapp.com/attachments/1412750974996709476/1413017206522122251/shop1_8ac10c9d3444a56ca90e07cbd1a5155e.png\",
                 \"embeds\": [{
-                  \"title\": \"코드를 불러오기 합니다. #${{ github.event.pull_request.number }}\",
+                  \"title\": \"새로운 코드를 불러오기 합니다. #${{ github.event.pull_request.number }}\",
                   \"description\": \"Opened/updated by ${{ github.actor }}\",
                   \"color\": 16776960
                 }]
