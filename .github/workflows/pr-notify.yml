@@ -10,6 +10,11 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      # 0. 레포지토리 체크아웃 (커밋 메시지 가져오기 위해 필요)
+      - name: Checkout repository
+        if: github.event_name == 'push'
+        uses: actions/checkout@v3
+
       # 1. 최근 커밋 메시지 가져오기
       - name: Get Latest Commit Message
         if: github.event_name == 'push'
@@ -30,7 +35,7 @@ jobs:
             CHAR_NAME="미도리"
             CHAR_AVATAR="https://cdn.discordapp.com/attachments/1412750974996709476/1413017206522122251/shop1_8ac10c9d3444a56ca90e07cbd1a5155e.png"
             CHAR_TITLE="새로운 코드를 불러오기 합니다."
-            CHAR_DESC="커밋 메시지: $COMMIT_MESSAGE"
+            CHAR_DESC="${GITHUB_ACTOR} pushed to ${GITHUB_REF}\n커밋 메시지: $COMMIT_MESSAGE"
           fi
           echo "CHAR_NAME=$CHAR_NAME" >> $GITHUB_ENV
           echo "CHAR_AVATAR=$CHAR_AVATAR" >> $GITHUB_ENV
@@ -63,10 +68,10 @@ jobs:
           -d "{
                 \"username\": \"미도리\",
                 \"avatar_url\": \"https://cdn.discordapp.com/attachments/1412750974996709476/1413017206522122251/shop1_8ac10c9d3444a56ca90e07cbd1a5155e.png\",
-                \"embeds\": [{
+                \"embeds\": [ {
                   \"title\": \"새로운 코드를 불러오기 합니다. #${{ github.event.pull_request.number }}\",
                   \"description\": \"Opened/updated by ${{ github.actor }}\",
                   \"color\": 16776960
-                }]
+                } ]
               }" \
           ${{ secrets.DISCORD_WEBHOOK_URL }}
