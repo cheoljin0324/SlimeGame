@@ -21,22 +21,38 @@ jobs:
         run: |
           echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
 
-      # 2. 캐릭터 선택 및 대사 설정
+      # 2. 캐릭터 선택 및 대사 설정 (4인 순환)
       - name: Select Character and Dialogue
         if: github.event_name == 'push'
         run: |
           LAST_CHAR=${GITHUB_SHA: -1}
-          if [[ $((16#$LAST_CHAR % 2)) -eq 0 ]]; then
+          INDEX=$((16#$LAST_CHAR % 4))
+
+          if [[ $INDEX -eq 0 ]]; then
             CHAR_NAME="모모이"
             CHAR_AVATAR="https://cdn.discordapp.com/attachments/1412750974996709476/1413017152310480988/shop1_191cceba693af3b12fb55ccc65fe28fd.png"
             CHAR_TITLE="우와아아아앗 새로운 코드잖아!?"
             CHAR_DESC="${GITHUB_ACTOR} pushed to ${GITHUB_REF}\n커밋 메시지: $COMMIT_MESSAGE"
-          else
+
+          elif [[ $INDEX -eq 1 ]]; then
             CHAR_NAME="미도리"
             CHAR_AVATAR="https://cdn.discordapp.com/attachments/1412750974996709476/1413017206522122251/shop1_8ac10c9d3444a56ca90e07cbd1a5155e.png"
             CHAR_TITLE="새로운 코드를 불러오기 합니다."
             CHAR_DESC="${GITHUB_ACTOR} pushed to ${GITHUB_REF}\n커밋 메시지: $COMMIT_MESSAGE"
+
+          elif [[ $INDEX -eq 2 ]]; then
+            CHAR_NAME="유즈"
+            CHAR_AVATAR="https://cdn.discordapp.com/attachments/1412750974996709476/1413017259992440882/aris_avatar.png"
+            CHAR_TITLE="저...! 그...새로운 코드가...있는데요..."
+            CHAR_DESC="${GITHUB_ACTOR} pushed to ${GITHUB_REF}\n커밋 메시지: $COMMIT_MESSAGE"
+
+          else
+            CHAR_NAME="아리스"
+            CHAR_AVATAR="https://cdn.discordapp.com/attachments/1412750974996709476/1413017301234567890/yuzu_avatar.png"
+            CHAR_TITLE="팜파카팜! 아리스는 새로운 모험담을 발견했습니다!"
+            CHAR_DESC="${GITHUB_ACTOR} pushed to ${GITHUB_REF}\n커밋 메시지: $COMMIT_MESSAGE"
           fi
+
           echo "CHAR_NAME=$CHAR_NAME" >> $GITHUB_ENV
           echo "CHAR_AVATAR=$CHAR_AVATAR" >> $GITHUB_ENV
           echo "CHAR_TITLE=$CHAR_TITLE" >> $GITHUB_ENV
@@ -51,15 +67,15 @@ jobs:
           -d "{
                 \"username\": \"${{ env.CHAR_NAME }}\",
                 \"avatar_url\": \"${{ env.CHAR_AVATAR }}\",
-                \"embeds\": [{
+                \"embeds\": [ {
                   \"title\": \"${{ env.CHAR_TITLE }}\",
                   \"description\": \"${{ env.CHAR_DESC }}\",
                   \"color\": 5814783
-                }]
+                } ]
               }" \
           ${{ secrets.DISCORD_WEBHOOK_URL }}
 
-      # 4. Pull Request 알림 (고정 캐릭터)
+      # 4. Pull Request 알림 (고정 캐릭터: 미도리)
       - name: Notify Pull Request
         if: github.event_name == 'pull_request'
         run: |
