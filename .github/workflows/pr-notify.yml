@@ -10,6 +10,11 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      - name: Get Latest Commit Message
+        if: github.event_name == 'push'
+        run: |
+          echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
+
       - name: Select Push Character Based on Commit SHA
         if: github.event_name == 'push'
         run: |
@@ -34,7 +39,7 @@ jobs:
                 \"avatar_url\": \"${{ env.CHAR_AVATAR }}\",
                 \"embeds\": [{
                   \"title\": \"우와아아아앗 새로운 코드잖아!?\",
-                  \"description\": \"${{ github.actor }} pushed to ${{ github.ref }}\",
+                  \"description\": \"${{ github.actor }} pushed to ${{ github.ref }}\n커밋 메시지: ${{ env.COMMIT_MESSAGE }}\",
                   \"color\": 5814783
                 }]
               }" \
