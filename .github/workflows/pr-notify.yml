@@ -15,15 +15,15 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
           -X POST \
-          -d '{
-                "username": "Push Bot",
-                "avatar_url": "https://example.com/push_avatar.png",
-                "embeds": [{
-                  "title": "New Push!",
-                  "description": "`${{ github.actor }}` pushed to `${{ github.ref }}`",
-                  "color": 5814783
+          -d "{
+                \"username\": \"모모이\",
+                \"avatar_url\": \"https://cdn.discordapp.com/attachments/1412750974996709476/1413017152310480988/shop1_191cceba693af3b12fb55ccc65fe28fd.png\",
+                \"embeds\": [{
+                  \"title\": \"우와아아아앗 새로운 코드잖아!?\",
+                  \"description\": \"${{ github.actor }} pushed to ${{ github.ref }}\",
+                  \"color\": 5814783
                 }]
-              }' \
+              }" \
           ${{ secrets.DISCORD_WEBHOOK_URL }}
 
       - name: Notify Pull Request
@@ -31,13 +31,13 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
           -X POST \
-          -d '{
-                "username": "Pull Bot",
-                "avatar_url": "https://example.com/pull_avatar.png",
-                "embeds": [{
-                  "title": "Pull Request #${{ github.event.pull_request.number }}",
-                  "description": "Opened/updated by `${{ github.actor }}`",
-                  "color": 16776960
+          -d "{
+                \"username\": \"미도리\",
+                \"avatar_url\": \"https://cdn.discordapp.com/attachments/1412750974996709476/1413017152310480988/shop1_191cceba693af3b12fb55ccc65fe28fd.png\",
+                \"embeds\": [{
+                  \"title\": \"코드를 불러오기 합니다. #${{ github.event.pull_request.number }}\",
+                  \"description\": \"Opened/updated by ${{ github.actor }}\",
+                  \"color\": 16776960
                 }]
-              }' \
+              }" \
           ${{ secrets.DISCORD_WEBHOOK_URL }}
