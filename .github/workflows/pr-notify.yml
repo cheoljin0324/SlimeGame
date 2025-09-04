@@ -1,4 +1,4 @@
-name: Discord Notify
+name: Discord Notify Rotating Push
 
 on:
   push:
@@ -10,25 +10,34 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
+      # 1. 최근 커밋 메시지 가져오기
       - name: Get Latest Commit Message
         if: github.event_name == 'push'
         run: |
           echo "COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s')" >> $GITHUB_ENV
 
-      - name: Select Push Character Based on Commit SHA
+      # 2. 캐릭터 선택 및 대사 설정
+      - name: Select Character and Dialogue
         if: github.event_name == 'push'
         run: |
           LAST_CHAR=${GITHUB_SHA: -1}
           if [[ $((16#$LAST_CHAR % 2)) -eq 0 ]]; then
             CHAR_NAME="모모이"
             CHAR_AVATAR="https://cdn.discordapp.com/attachments/1412750974996709476/1413017152310480988/shop1_191cceba693af3b12fb55ccc65fe28fd.png"
+            CHAR_TITLE="우와아아아앗 새로운 코드잖아!?"
+            CHAR_DESC="${GITHUB_ACTOR} pushed to ${GITHUB_REF}\n커밋 메시지: $COMMIT_MESSAGE"
           else
             CHAR_NAME="미도리"
             CHAR_AVATAR="https://cdn.discordapp.com/attachments/1412750974996709476/1413017206522122251/shop1_8ac10c9d3444a56ca90e07cbd1a5155e.png"
+            CHAR_TITLE="앗, 새로운 모험 코드가 도착했어요!"
+            CHAR_DESC="이번 커밋은 ${GITHUB_ACTOR}님이 올린 코드입니다.\n커밋 메시지: $COMMIT_MESSAGE"
           fi
           echo "CHAR_NAME=$CHAR_NAME" >> $GITHUB_ENV
           echo "CHAR_AVATAR=$CHAR_AVATAR" >> $GITHUB_ENV
+          echo "CHAR_TITLE=$CHAR_TITLE" >> $GITHUB_ENV
+          echo "CHAR_DESC=$CHAR_DESC" >> $GITHUB_ENV
 
+      # 3. Push 알림 보내기
       - name: Notify Push
         if: github.event_name == 'push'
         run: |
@@ -38,13 +47,14 @@ jobs:
                 \"username\": \"${{ env.CHAR_NAME }}\",
                 \"avatar_url\": \"${{ env.CHAR_AVATAR }}\",
                 \"embeds\": [{
-                  \"title\": \"우와아아아앗 새로운 코드잖아!?\",
-                  \"description\": \"${{ github.actor }} pushed to ${{ github.ref }}\n커밋 메시지: ${{ env.COMMIT_MESSAGE }}\",
+                  \"title\": \"${{ env.CHAR_TITLE }}\",
+                  \"description\": \"${{ env.CHAR_DESC }}\",
                   \"color\": 5814783
                 }]
               }" \
           ${{ secrets.DISCORD_WEBHOOK_URL }}
 
+      # 4. Pull Request 알림 (고정 캐릭터)
       - name: Notify Pull Request
         if: github.event_name == 'pull_request'
         run: |
