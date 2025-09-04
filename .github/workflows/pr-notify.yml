@@ -33,7 +33,7 @@ jobs:
           -X POST \
           -d "{
                 \"username\": \"미도리\",
-                \"avatar_url\": \"https://cdn.discordapp.com/attachments/1412750974996709476/1413017152310480988/shop1_191cceba693af3b12fb55ccc65fe28fd.png\",
+                \"avatar_url\": \"https://cdn.discordapp.com/attachments/1412750974996709476/1413017206522122251/shop1_8ac10c9d3444a56ca90e07cbd1a5155e.png\",
                 \"embeds\": [{
                   \"title\": \"코드를 불러오기 합니다. #${{ github.event.pull_request.number }}\",
                   \"description\": \"Opened/updated by ${{ github.actor }}\",
