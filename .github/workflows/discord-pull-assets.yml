@@ -2,11 +2,15 @@ name: Discord → GitHub (Polling Sync)
 
 on:
   schedule:
-    - cron: "*/5 * * * *"     # 5분마다 실행
-  workflow_dispatch: {}       # 수동 실행 버튼
+    - cron: "0 * * * *"   # 매시 정각(UTC) = 한국 시간 매시 +9분
+  workflow_dispatch: {}    # 수동 실행 버튼
 
 permissions:
   contents: write
+
+concurrency:
+  group: discord-poll
+  cancel-in-progress: false
 
 jobs:
   sync:
@@ -23,33 +27,18 @@ jobs:
       - name: Install deps
         run: pip install requests
 
-      # (선택) 수동 실행 시 채널로 테스트 메시지 보내기
-      - name: Post smoke test to Discord
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        env:
-          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          # 필요하면 아래 채널 ID를 특정 텍스트 채널 ID로 바꾸세요.
-          CHANNEL: ${{ vars.DISCORD_SMOKE_TEST_CHANNEL || vars.DISCORD_CHANNEL_IDS }}
-        run: |
-          CH=$(echo "$CHANNEL" | cut -d',' -f1)  # 첫 번째 채널 ID만 사용
-          curl -sS -X POST "https://discord.com/api/v10/channels/$CH/messages" \
-            -H "Authorization: Bot $DISCORD_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{"content":"ping from GitHub Actions ✅"}' >/dev/null || true
-
       - name: Run poller
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          CHANNEL_IDS: ${{ vars.DISCORD_CHANNEL_IDS }}   # "123,456" 형식
-          SAVE_ROOT: Assets/Sprites/discord              # Unity 폴더로 저장
+          CHANNEL_IDS: ${{ vars.DISCORD_CHANNEL_IDS }}
+          SAVE_ROOT: Assets/Sprites/discord
           STATE_FILE: .sync/discord_state.json
           MAX_LOOKBACK: "500"
           RECENT_WINDOW: "80"
           ALLOW_EXT: "png,jpg,jpeg,gif,webp,psd,clip,bmp,tiff,svg"
           ENABLE_HASH: "0"
-          # 🔔 채널 안내 메시지 옵션
-          POST_CONFIRM: "1"                              # 새 첨부 동기화 시 채팅 전송
-          POST_CHANNEL_ID: ""                            # 비우면 원본 채널로 전송; 특정 채널 ID로 고정 가능
+          POST_CONFIRM: "1"
+          POST_CHANNEL_ID: ""   # 특정 채널로만 알림 보내려면 ID 입력
           POST_MESSAGE_TEMPLATE: "이미지 너무 쌓아뒀잖아요 선생님! ({count}개)\n{files}"
         run: |
           python .github/scripts/sync_discord_assets.py
@@ -63,7 +52,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes."
           else
-            git pull --rebase
             git commit -m "chore(assets): discord polling sync"
             git push
           fi
