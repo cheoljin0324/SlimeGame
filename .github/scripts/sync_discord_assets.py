@@ -10,6 +10,14 @@ RECENT_WINDOW = int(os.environ.get("RECENT_WINDOW","80"))
 ALLOW_EXT     = set([e.strip().lower() for e in os.environ.get("ALLOW_EXT","png,jpg,jpeg,gif,webp").split(",") if e.strip()])
 ENABLE_HASH   = os.environ.get("ENABLE_HASH","0") == "1"
 
+# ✅ 알림 메시지 관련
+POST_CONFIRM   = os.environ.get("POST_CONFIRM","0") == "1"     # 1이면 안내 메시지 전송
+POST_CHANNELID = os.environ.get("POST_CHANNEL_ID","")          # 공지 채널 ID, 비우면 원본 채널에 보냄
+MSG_TEMPLATE = os.environ.get(
+    "POST_MESSAGE_TEMPLATE",
+    "✅이미지 너무 쌓아뒀잖아요 선생님! ({count}개)\n{files}"
+)
+
 HDRS = {
     "Authorization": f"Bot {DISCORD_TOKEN}",
     "User-Agent": "discord-sync-bot (github-actions)"
@@ -30,34 +38,23 @@ def save_state(state):
     with open(STATE_FILE,"w",encoding="utf-8") as f:
         json.dump(state, f, ensure_ascii=False, indent=2)
 
-def get_channel_name(cid):
-    r = requests.get(f"{BASE}/channels/{cid}", headers=HDRS, timeout=30)
-    r.raise_for_status()
-    data = r.json()
-    return data.get("name") or str(cid)
-
 def list_messages(cid, params):
     r = requests.get(f"{BASE}/channels/{cid}/messages", headers=HDRS, params=params, timeout=30)
-    if r.status_code == 403:
-        raise RuntimeError(f"No permission to read channel {cid}.")
     r.raise_for_status()
     return r.json(), r.headers
 
-def sha256_url(url):
-    h = hashlib.sha256()
-    with requests.get(url, stream=True, timeout=120) as r:
-        r.raise_for_status()
-        for chunk in r.iter_content(1024*1024):
-            if chunk:
-                h.update(chunk)
-    return h.hexdigest()
+def post_message(channel_id, content):
+    """디스코드 채널에 채팅 전송"""
+    url = f"{BASE}/channels/{channel_id}/messages"
+    r = requests.post(url, headers=HDRS, json={"content": content}, timeout=30)
+    if r.status_code not in (200, 201):
+        print("[warn] post_message:", r.status_code, r.text)
 
 def ext_ok(filename):
     ext = filename.rsplit(".",1)[-1].lower() if "." in filename else ""
     return (ext in ALLOW_EXT) if ALLOW_EXT else True
 
 def ymd_from_ts(ts_iso):
-    # Discord message timestamp is ISO8601 in message['timestamp']
     try:
         dt = datetime.datetime.fromisoformat(ts_iso.replace("Z","+00:00"))
     except Exception:
@@ -65,13 +62,9 @@ def ymd_from_ts(ts_iso):
     return dt.strftime("%Y"), dt.strftime("%m"), dt.strftime("%d")
 
 def process_messages(cid, ch_name, msgs, state):
-    """
-    msgs는 오래된 것부터 처리(커밋 순서 안정)
-    """
     ch_key = str(cid)
     st = state.setdefault(ch_key, {"last_message_id":"0", "seen":{}})
     seen = st["seen"]
-
     new_max = int(st["last_message_id"])
     changed = False
 
@@ -84,26 +77,25 @@ def process_messages(cid, ch_name, msgs, state):
         if mid > new_max:
             new_max = mid
 
-        # 첨부만 대상
         if not atts: 
             continue
 
-        # 저장 디렉토리
         base_dir = pathlib.Path(SAVE_ROOT)/ch_name/year/month/day/str(mid)
         base_dir.mkdir(parents=True, exist_ok=True)
+
+        new_files = []
 
         for a in atts:
             aid = a["id"]
             key = f"{m['id']}#{aid}"
             if key in seen:
-                continue  # 이미 처리
+                continue
 
             fn  = a["filename"]
             url = a["url"]
             if not ext_ok(fn):
                 continue
 
-            # 다운로드
             dst = base_dir/fn
             with requests.get(url, stream=True, timeout=180) as r:
                 r.raise_for_status()
@@ -112,99 +104,74 @@ def process_messages(cid, ch_name, msgs, state):
                         if chunk:
                             f.write(chunk)
 
-            file_hash = ""
-            if ENABLE_HASH:
-                file_hash = sha256_url(url)
-
-            # 메타 기록
-            meta = {
-                "message_id": str(m["id"]),
-                "attachment_id": str(aid),
-                "filename": fn,
-                "size": a.get("size"),
-                "content_type": a.get("content_type"),
-                "url": url,
-                "timestamp": ts,
-                "sha256": file_hash
-            }
-            with open(base_dir/"_meta.json","a",encoding="utf-8") as f:
-                f.write(json.dumps(meta, ensure_ascii=False)+"\n")
-
-            seen[key] = {"sha256": file_hash} if file_hash else {}
+            seen[key] = {}
+            new_files.append(fn)
             changed = True
 
-    # last_message_id 갱신
+        if new_files and POST_CONFIRM:
+            files_line = "\n".join(f"- {name}" for name in new_files)
+            content = MSG_TEMPLATE.format(
+                count=len(new_files),
+                files=files_line,
+                save_dir=str(base_dir)
+            )
+            target = POST_CHANNELID if POST_CHANNELID else cid
+            post_message(target, content)
+
     if new_max > int(st["last_message_id"]):
         st["last_message_id"] = str(new_max)
         changed = True
-
     return changed
 
 def backoff_sleep(headers):
-    # 간단 레이트리밋 대응
     rl = headers.get("X-RateLimit-Remaining")
     if rl is not None and rl == "0":
         reset = headers.get("X-RateLimit-Reset-After")
-        try:
-            t = float(reset)
-        except:
-            t = 2.0
+        try: t = float(reset)
+        except: t = 2.0
         time.sleep(t)
     else:
         time.sleep(0.3)
 
 def main():
-    if not CHANNEL_IDS:
-        raise SystemExit("CHANNEL_IDS env is empty. Set repo variable DISCORD_CHANNEL_IDS.")
-
     state = load_state()
 
     for cid in CHANNEL_IDS:
-        ch_name = ""
         try:
-            ch_name = get_channel_name(cid)
-        except Exception as e:
-            print(f"[warn] get_channel_name({cid}) failed:", e)
-            ch_name = str(cid)
+            st = state.setdefault(str(cid), {"last_message_id":"0","seen":{}})
+            last_id = int(st.get("last_message_id","0"))
+            collected = []
+            after = last_id if last_id>0 else None
+            fetched = 0
+            while True:
+                params = {"limit": 100}
+                if after:
+                    params["after"] = after
+                msgs, hdr = list_messages(cid, params=params)
+                if not msgs:
+                    break
+                fetched += len(msgs)
+                collected.extend(msgs)
+                after = int(msgs[0]["id"])
+                backoff_sleep(hdr)
+                if fetched >= MAX_LOOKBACK:
+                    break
+            collected.sort(key=lambda m: int(m["id"]))
+            changed1 = process_messages(cid, str(cid), collected, state)
 
-        print(f"\n== Channel {cid} ({ch_name}) ==")
-        st = state.setdefault(str(cid), {"last_message_id":"0","seen":{}})
-        last_id = int(st.get("last_message_id","0"))
-
-        # 1) last_message_id 이후(증분) 긁기 (oldest_first 되도록 반복 수집 후 역정렬)
-        collected = []
-        after = last_id if last_id>0 else None
-        fetched = 0
-        while True:
-            params = {"limit": 100}
-            if after:
-                params["after"] = after
-            msgs, hdr = list_messages(cid, params=params)
-            if not msgs:
-                break
-            fetched += len(msgs)
-            # 디스코드는 최신→오래된 순 반환. 우리는 오래된→최신으로 처리하려고 모아뒀다가 나중에 reverse
-            collected.extend(msgs)
-            after = int(msgs[0]["id"])  # 가장 큰 ID 뒤이어 계속
+            recent_params = {"limit": min(100, RECENT_WINDOW)}
+            recent_msgs, hdr = list_messages(cid, params=recent_params)
             backoff_sleep(hdr)
-            if fetched >= MAX_LOOKBACK:
-                break
-        collected.sort(key=lambda m: int(m["id"]))  # 오래된→최신
+            recent_msgs.sort(key=lambda m: int(m["id"]))
+            changed2 = process_messages(cid, str(cid), recent_msgs, state)
 
-        changed1 = process_messages(cid, ch_name, collected, state)
-
-        # 2) 최근 윈도우 재검사(편집/교체 보완)
-        recent_params = {"limit": min(100, RECENT_WINDOW)}
-        recent_msgs, hdr = list_messages(cid, params=recent_params)
-        backoff_sleep(hdr)
-        recent_msgs.sort(key=lambda m: int(m["id"]))
-        changed2 = process_messages(cid, ch_name, recent_msgs, state)
-
-        if changed1 or changed2:
-            save_state(state)
-            print(f"[update] state saved for channel {cid}")
-        else:
-            print("[ok] no new/changed attachments")
+            if changed1 or changed2:
+                save_state(state)
+                print(f"[update] state saved for channel {cid}")
+            else:
+                print(f"[ok] no new files in channel {cid}")
+        except Exception as e:
+            print("error channel", cid, ":", e)
 
 if __name__ == "__main__":
     main()
