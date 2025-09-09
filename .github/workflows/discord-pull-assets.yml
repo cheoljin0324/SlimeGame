@@ -1,0 +1,50 @@
+name: Discord → GitHub (Polling Sync)
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # 5분마다
+  workflow_dispatch: {}     # 수동 실행 버튼
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: pip install requests
+
+      - name: Run poller
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          CHANNEL_IDS: ${{ vars.DISCORD_CHANNEL_IDS }} # "123,456" 형식(Org/Repo Variables 권장)
+          SAVE_ROOT: assets/discord
+          STATE_FILE: .sync/discord_state.json
+          MAX_LOOKBACK: "500"         # 마지막 메시지 이후 최대 몇 개까지 긁을지
+          RECENT_WINDOW: "80"         # 매번 최신 N개 재검사(편집/교체 보완)
+          ALLOW_EXT: "png,jpg,jpeg,gif,webp,psd,clip,bmp,tiff,svg"  # 화이트리스트
+          ENABLE_HASH: "0"            # 1=SHA-256 계산(대용량이면 0 권장)
+        run: |
+          python .github/scripts/sync_discord_assets.py
+          echo "Poll done."
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "discord-sync-bot"
+          git config user.email "actions@github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "chore(assets): discord polling sync"
+            git push
+          fi
